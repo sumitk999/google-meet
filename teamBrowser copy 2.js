@@ -53,7 +53,7 @@ exports.newBrowser = async()=>{
 		let newPage = await browser.newPage();
 		await newPage.goto('https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=id_token&scope=openid%20profile&client_id=5e3ce6c0-2b1f-4285-8d4b-75ee78787346&redirect_uri=https%3A%2F%2Fteams.microsoft.com%2Fgo&state=eyJpZCI6ImY2MDExZDljLWRjMmEtNGE3OC1iMjc3LTA3ZGZjNTE5YTBmZSIsInRzIjoxNjc0MDE3NzczLCJtZXRob2QiOiJyZWRpcmVjdEludGVyYWN0aW9uIn0%3D&nonce=a28fbb80-2e56-4407-a7d6-8e2c410f23dd&client_info=1&x-client-SKU=MSAL.JS&x-client-Ver=1.3.4&client-request-id=695651dd-0282-4f54-9ba3-aeb6cd5e951c&response_mode=fragment&sso_reload=true');
   
-		await newPage.mouse.click(1140, 550, {delay: 3000, button: 'right'});
+		await newPage.mouse.click(910, 50, {delay: 3000, button: 'right'});
 	return browser;
 }
 

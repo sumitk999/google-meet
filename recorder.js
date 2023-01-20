@@ -4,8 +4,9 @@ var mediaRecorder = null;
 var UploadID = "";
 var KeyResponse = "";
 
-let base_url = "https://14af-49-249-44-114.in.ngrok.io";
-let Mnumber = "123456"
+// let base_url = "https://8b3d-49-249-44-114.in.ngrok.io";
+let base_url = "http://localhost:3000";
+let Mnumber = "000011112222"
 const handleRecordOriginal = function ({ stream, mimeType }) {
   startTime = Date.now();
   var part_count = 1;
@@ -26,6 +27,7 @@ const handleRecordOriginal = function ({ stream, mimeType }) {
       formdata.append("file", e.data);
       
        async function chunkUpload(PARTCOUNT) {
+        console.log("form Data>>>>>>>> ",formdata);
         const response = await fetch(
           `${base_url}/multipart/upload-part?key=${KeyResponse}&upload_id=${UploadID}&part_count=${PARTCOUNT}`,
           {
@@ -82,7 +84,7 @@ const handleRecordOriginal = function ({ stream, mimeType }) {
       });
     }, 5000);
   };
-  mediaRecorder.start(180000); // here 200ms is interval of chunk collection
+  mediaRecorder.start(120000); // here 200ms is interval of chunk collection
 };
 //Record Screen
 async function recordScreen() {
@@ -152,7 +154,7 @@ const stopRecording = () => {
 
     setTimeout(()=>{
  stopRecording()
-    },600000)
+    },390000)
 
     
     // //Recording

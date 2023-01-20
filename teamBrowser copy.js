@@ -76,7 +76,7 @@ exports.newBrowser = async()=>{
 	   await newPage.click('input[id=KmsiCheckboxField]')
 	   await newPage.focus('input[id=idSIButton9]')
 	   await newPage.click('input[id=idSIButton9]')
-	   await newPage.waitForTimeout(7000)
+	   await newPage.waitForTimeout(5000)
 	   await newPage.click('.tile-container')
 	  const url=  "https://teams.microsoft.com/l/meetup-join/19%3ameeting_N2M1MDg4ZGQtN2M4Ny00ZDgxLWE3NjctY2ZkYTBkODY3ODUx%40thread.v2/0?context=%7b%22Tid%22%3a%2282cb77e5-b2fd-4c87-8739-2727d9a86da0%22%2c%22Oid%22%3a%22e5c501aa-41ac-4318-bcce-caa478cca1e9%22%7d"
 console.log("url   ====",url);
