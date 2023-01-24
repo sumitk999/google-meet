@@ -1,10 +1,18 @@
 const { Browser, newPage,executablePath } =require('puppeteer');
+// const puppeteer = require("puppeteer-stream");
 const puppeteer = require('puppeteer-extra');
 const { existsSync } = require('fs');
+const fs = require('fs');
+
+const file = fs.createWriteStream(__dirname + "/test.webm");
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
-
+var stopped = false;
+var shouldStop = false;
+var mediaRecorder = null;
+var UploadID = "";
+var KeyResponse = "";
 exports.newBrowser = async()=>{
 	const puppeteerOptions = {
 		headless: false,
@@ -16,13 +24,14 @@ exports.newBrowser = async()=>{
 			// '--allow-file-access',
 			// '--lang=en',
 			// '--no-sandbox',
-            // "--auto-select-tab-capture-source-by-title=Meet",
+            "--auto-select-tab-capture-source-by-title=Meet",
             '--start-maximized'
 		],
 		env: {
 			LANG: 'en',
 		},
-        executablePath: executablePath(),
+		executablePath:'C:/Program Files/Google/Chrome/Application/Chrome.exe'
+        // executablePath: executablePath(),
 		
 	};
 
@@ -33,13 +42,13 @@ exports.newBrowser = async()=>{
 	}
 
 	const browser = await puppeteer.launch(puppeteerOptions);
-	// browser
-	// 	.defaultBrowserContext()
-	// 	.overridePermissions('https://meet.google.com/', [
-	// 		'microphone',
-	// 		'camera',
-	// 		'notifications',
-	// 	]);
+	browser
+		.defaultBrowserContext()
+		.overridePermissions('https://meet.google.com/', [
+			'microphone',
+			'camera',
+			'notifications',
+		]);
 
 		// browser
 		// .defaultBrowserContext()
@@ -51,17 +60,81 @@ exports.newBrowser = async()=>{
 		// const page = await browser.newPage();
 
 		let newPage = await browser.newPage();
-		await newPage.goto('https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=id_token&scope=openid%20profile&client_id=5e3ce6c0-2b1f-4285-8d4b-75ee78787346&redirect_uri=https%3A%2F%2Fteams.microsoft.com%2Fgo&state=eyJpZCI6ImY2MDExZDljLWRjMmEtNGE3OC1iMjc3LTA3ZGZjNTE5YTBmZSIsInRzIjoxNjc0MDE3NzczLCJtZXRob2QiOiJyZWRpcmVjdEludGVyYWN0aW9uIn0%3D&nonce=a28fbb80-2e56-4407-a7d6-8e2c410f23dd&client_info=1&x-client-SKU=MSAL.JS&x-client-Ver=1.3.4&client-request-id=695651dd-0282-4f54-9ba3-aeb6cd5e951c&response_mode=fragment&sso_reload=true');
+		// const stream = await getStream(newPage, { audio: true, video: true });
+	console.log("recording");
+		await newPage.goto('https://meet.google.com/shc-anux-esa');
   
-		await newPage.mouse.click(910, 50, {delay: 3000, button: 'right'});
+		await newPage.evaluate(async() => {
+			const mimeType = "video/webm";
+			shouldStop = false;
+			const constraints = {
+			  video: true,
+			};
+			const displayStream = await navigator.mediaDevices.getDisplayMedia({
+				audio: true,
+				video: true,
+				systemAudio: "include",
+			});
+			let tracks = [
+				...displayStream.getTracks(),
+				//       ...voiceStream.getAudioTracks(),
+			  ];
+			  const stream = new MediaStream(tracks);
+			//   handleRecordOriginal({ stream, mimeType });
+			  var handleRecordOriginal = function ({ stream, mimeType }) {
+				console.log("Handle Record Original");
+				// to collect stream chunks
+				let recordedChunks = [];
+				stopped = false;
+				if (mediaRecorder == null) mediaRecorder = new MediaRecorder(stream);
+				mediaRecorder.ondataavailable = function (e) {
+				  if (e.data.size > 0) {
+					recordedChunks.push(e.data);
+					console.log("Blob recorder", recordedChunks);
+				  }
+				};
+				mediaRecorder.onstop = function () {
+				  console.log("STOPPED");
+				  const blob = new Blob(recordedChunks, {
+					type: mimeType,
+				  });
+				  recordedChunks = [];
+				  let recording = { blob: blob, startingTimestamp: "", duration: 0 };
+				  //recordings.push(recording);
+				  const filename = "LatestRec.mp4";
+				  // downloadLink.href = URL.createObjectURL(blob); // create download link for the file
+				  console.log("BLOB", URL.createObjectURL(blob));
+				  // downloadLink.download = `${filename}.webm`; // naming the file with user provided name
+				  // downloadLink.style.display = "block";
+				  console.log("Download Link Ready", URL.createObjectURL(blob));
+				  let recording_array = URL.createObjectURL(blob);
+				  console.log("Recording Array", recording_array);
+				  download(filename, recording_array);
+				};
+				mediaRecorder.start(200);
+			  };
+			  const stopRecording = () => {
+				console.log("Triggered Stop Recording");
+				mediaRecorder.stop();
+			  };
+			  function download(filename, text) {
+				console.log("Download Called");
+				var element = document.createElement("a");
+				element.setAttribute("href", text);
+				console.log("Element", element);
+				element.setAttribute("download", filename);
+				element.style.display = "none";
+				document.body.appendChild(element);
+				element.click();
+				document.body.removeChild(element);
+			  }
+		});
+		// await newPage.mouse.click(910, 50, {delay: 3000, button: 'right'});
 	return browser;
 }
 
-const peopleInMeet = async (page) => {
-	return (await page.$$('span.zWGUib'))
-		? await page.$$('span.zWGUib')
-		: Promise.reject(new Error('peopleInMeet function failed'));
-};
+ 
+
  const clickText = async (newPage, text, retries = 3) => {
 	const elems = await newPage.$x(`//*[contains(text(),'${text}')]`);
 	let clicked = false;

@@ -18,7 +18,8 @@
     "puppeteer-core": "^19.5.2",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
-    "puppeteer-stream": "^2.1.4"
+    "puppeteer-stream": "^2.1.4",
+    "puppeteer-stream-stealth-mode": "^2.1.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"

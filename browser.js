@@ -2,35 +2,41 @@ const { Browser, newPage,executablePath } =require('puppeteer');
 const puppeteer = require('puppeteer-extra');
 const { existsSync } = require('fs');
 
+
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const { text } = require('express');
 puppeteer.use(StealthPlugin());
 
 exports.newBrowser = async()=>{
 	const puppeteerOptions = {
 		headless: false,
+		ignoreDefaultArgs: ["--enable-automation"],
 		args: [
+			
 			// '--use-fake-ui-for-media-stream',
 			// '--use-fake-device-for-media-stream',
 			// '--use-file-for-fake-audio-capture=/home/mj/experiment/meet-the-bots/example.wav',
 			// '--allow-file-access',
 			// '--lang=en',
 			// '--no-sandbox',
-            "--auto-select-tab-capture-source-by-title=Meet",
+            "--auto-select-tab-capture-source-by-title=meet",
+			// "--auto-select-desktop-capture-source=Entire screen",
             '--start-maximized'
 		],
 		env: {
 			LANG: 'en',
 		},
-        executablePath: executablePath(),
+		
+        executablePath:executablePath(),
+      
+        // executablePath:'C:/Program Files/Google/Chrome/Application/Chrome.exe'
 		
 	};
 
 	if (existsSync('/usr/bin/chromium-browser')) {
 		console.log('Altering puppeteer chromium path...');
-		/* @ts-ignore */
 		puppeteerOptions.executablePath = '/usr/bin/chromium-browser';
 	}
-
 	const browser = await puppeteer.launch(puppeteerOptions);
 	browser
 		.defaultBrowserContext()
@@ -42,7 +48,7 @@ exports.newBrowser = async()=>{
 
 		browser
 		.defaultBrowserContext()
-		.overridePermissions('http://127.0.0.1:5500', [
+		.overridePermissions('https://lightbulb.tiiny.site/', [
 			'microphone',
 			'camera',
 			'notifications',
@@ -51,11 +57,13 @@ exports.newBrowser = async()=>{
 // setTimeout()
 // await newPage.setViewport({ width: 1500, height: 768});
 
-  await page.goto('http://127.0.0.1:5500/index.html');
+//   await page.goto('http://127.0.0.1:5500/index.html');
+  await page.goto('https://lightbulb.tiiny.site/');
+//   await page.waitForTimeout(3000)
   let newPage = await browser.newPage();
 
  
-  await newPage.goto('https://meet.google.com/gkc-fjcm-otx');
+  await newPage.goto('https://meet.google.com/shc-anux-esa');
 //   await newPage.keyboard.type('LigthBulb', { delay: 15 });
   // console.log('turn off cam using Ctrl+E');
   await newPage.waitForTimeout(3000);
@@ -76,19 +84,35 @@ exports.newBrowser = async()=>{
   await clickText(newPage, 'Ask to join');
   await clickText(newPage, 'Got it');
 
-setTimeout(async()=>{
-	const p = await peopleInMeet(newPage)
-	console.log("peoples====>>>>>>> ",p.length);
-},30000)
-  
-	return browser;
+  await newPage.waitForTimeout(10000)
+  const element = await newPage.$(".uGOf1d");
+   let text;
+  const clrInt = setInterval(async()=>{
+	try {
+		text = await newPage.evaluate(element => element.textContent, element);
+		console.log('peoples====>>>>>>>',text);
+		if(text == 1 || text == 'undefined'){
+			clearInterval(clrInt)
+			newPage.close()
+			browser.close()
+		}
+	} catch (error) {
+		console.log("error --> ");
+		clearInterval(clrInt)
+			newPage.close()
+			browser.close()
+	}
+	 
+	},5000)
+	// await newPage.waitForTimeout(11000)
+	// console.log("after setinterval",text);
+	// await newPage.waitForTimeout(15000)
+	// console.log("after setinterval 2",text);
+	
+	// newPage.waitForTimeout(30000)
+	
 }
 
-const peopleInMeet = async (page) => {
-	return (await page.$$('span.zWGUib'))
-		? await page.$$('span.zWGUib')
-		: Promise.reject(new Error('peopleInMeet function failed'));
-};
  const clickText = async (newPage, text, retries = 3) => {
 	const elems = await newPage.$x(`//*[contains(text(),'${text}')]`);
 	let clicked = false;
@@ -105,26 +129,4 @@ const peopleInMeet = async (page) => {
 		await clickText(newPage, text, retries - 1);
 	}
 };
-// export async function newPage(browser: Browser): Promise<newPage> {
-// 	const newPage = await browser.newPage();
-// 	await newPage.setExtraHTTPHeaders({
-// 		'Accept-Language': 'en',
-// 		'sec-ch-ua':
-// 			'"Chromium";v="94", "Microsoft Edge";v="94", ";Not A Brand";v="99"',
-// 	});
-// 	// Set the language forcefully on javascript
-// 	await newPage.evaluateOnNewDocument(() => {
-// 		Object.defineProperty(navigator, 'language', {
-// 			get() {
-// 				return 'en';
-// 			},
-// 		});
-// 		Object.defineProperty(navigator, 'languages', {
-// 			get() {
-// 				return ['en'];
-// 			},
-// 		});
-// 	});
-	
-// 	return newPage;
-// }
+

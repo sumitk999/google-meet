@@ -6,7 +6,7 @@ const { existsSync } = require('fs');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
-exports.newBrowser = async()=>{
+exports.newBrowser = async(payload)=>{
 	const puppeteerOptions = {
 		headless: false,
 		ignoreDefaultArgs: ["--enable-automation"],
@@ -33,7 +33,6 @@ exports.newBrowser = async()=>{
 
 	if (existsSync('/usr/bin/chromium-browser')) {
 		console.log('Altering puppeteer chromium path...');
-		/* @ts-ignore */
 		puppeteerOptions.executablePath = '/usr/bin/chromium-browser';
 	}
 // console.log(executablePath());
@@ -48,7 +47,7 @@ exports.newBrowser = async()=>{
 
 		browser
 		.defaultBrowserContext()
-		.overridePermissions('http://127.0.0.1:5500', [
+		.overridePermissions('https://lightbulb.tiiny.site/', [
 			'microphone',
 			'camera',
 			'notifications',
@@ -58,15 +57,16 @@ exports.newBrowser = async()=>{
 // await newPage.setViewport({ width: 1500, height: 768});
 
 
-  await page.goto('http://127.0.0.1:5500/index.html');
+  await page.goto('https://lightbulb.tiiny.site/');
   let newPage = await browser.newPage();
   
 
 // //==============================================================================================
-const url = "https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZTdlNjZiZGUtNmQ5Ny00YzY4LTg4NjAtMmIxMGFkYzQzOTAz%40thread.v2/0?context=%7b%22Tid%22%3a%2282cb77e5-b2fd-4c87-8739-2727d9a86da0%22%2c%22Oid%22%3a%22e5c501aa-41ac-4318-bcce-caa478cca1e9%22%7d"
+const url = "https://teams.microsoft.com/l/meetup-join/19%3ameeting_OTkyMDE1YTMtYWE5NC00NWU2LWIzOWMtYzNmYzU2NjViN2Qy%40thread.v2/0?context=%7b%22Tid%22%3a%2282cb77e5-b2fd-4c87-8739-2727d9a86da0%22%2c%22Oid%22%3a%22135e2a95-ffe0-4a60-8e6b-0684ffdded7c%22%7d"
 // console.log("url   ====",url);
-await newPage.goto("https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZTdlNjZiZGUtNmQ5Ny00YzY4LTg4NjAtMmIxMGFkYzQzOTAz%40thread.v2/0?context=%7b%22Tid%22%3a%2282cb77e5-b2fd-4c87-8739-2727d9a86da0%22%2c%22Oid%22%3a%22e5c501aa-41ac-4318-bcce-caa478cca1e9%22%7d")
-await newPage.waitForTimeout(3000)
+await newPage.goto(url)
+
+await newPage.waitForTimeout(1000)
 let newP = await browser.newPage();
 newPage.close()
 // await newP.setUserAgent(userAgent.toString());
